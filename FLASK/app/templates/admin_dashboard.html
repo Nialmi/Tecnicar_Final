@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}
+Admin Dashboard
+{% endblock %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+<ul>
+    <li><a href="{{ url_for('main.admin_reports') }}">Reporte de Vehiculos</a></li>
+    <li><a href="{{ url_for('main.admin_create_user') }}">Crear Usuarios</a></li>
+    <li><a href="{{ url_for('main.admin_view_records') }}">Buscar Vehiculo</a></li>
+    <li><a href="{{ url_for('main.register_customer') }}">Registrar Vehículo</a></li>
+    <li><a href="{{ url_for('main.manage_user') }}">Eliminar Usuario</a></li>
+</ul>
+{% endblock %}

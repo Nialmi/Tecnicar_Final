@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar Usuario{% endblock %}
+
+{% block content %}
+<h1>Eliminar Usuario</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.username.label }} {{ form.username(size=20) }}
+    </div>
+    <div>
+        <button type="submit" name="action" value="search"
+            formaction="{{ url_for('main.search_user') }}">Buscar</button>
+        <button type="submit" name="action" value="delete"
+            formaction="{{ url_for('main.delete_user') }}">Eliminar</button>
+    </div>
+</form>
+{% if user_info %}
+<h2>Usuario encontrado:</h2>
+<p>Nombre de usuario: {{ user_info.username }}</p>
+<p>Email: {{ user_info.email }}</p>
+<p>Rol: {{ user_info.role }}</p>
+{% endif %}
+{% endblock %}

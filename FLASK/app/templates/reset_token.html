@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Reset Your Password</h2>
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    {{ form.password.label }}<br>
+    {{ form.password(size=32) }}<br>
+    {% for error in form.password.errors %}
+    <span style="color: red;">[{{ error }}]</span><br>
+    {% endfor %}
+    {{ form.confirm_password.label }}<br>
+    {{ form.confirm_password(size=32) }}<br>
+    {% for error in form.confirm_password.errors %}
+    <span style="color: red;">[{{ error }}]</span><br>
+    {% endfor %}
+    {{ form.submit() }}
+</form>
+{% endblock %}

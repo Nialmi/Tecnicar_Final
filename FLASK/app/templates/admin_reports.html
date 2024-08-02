@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte{% endblock %}
+
+{% block content %}
+<div class="report_container">
+    <h1>Reportes de Vehículos</h1>
+    <br>
+
+    <canvas id="vehiclesChart" width="1200" height="600"></canvas>
+    <br>
+
+    <form id="filtersForm" class="form-group">
+        <label for="state_filter">Estado:</label>
+        <select id="state_filter" name="state_filter" class="form-control">
+            <option value="">Todos</option>
+            {% for s in status %}
+            <option value="{{ s[0] }}">{{ s[0] }}</option>
+            {% endfor %}
+        </select>
+
+        {% if workshops %}
+        <label for="workshop_filter">Taller:</label>
+        <select id="workshop_filter" name="workshop_filter" class="form-control">
+            <option value="">Todos</option>
+            {% for workshop in workshops %}
+            <option value="{{ workshop[0] }}">{{ workshop[0] }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+
+        <label for="month_filter">Mes:</label>
+        <select id="month_filter" name="month_filter" class="form-control">
+            <option value="">Todos</option>
+            <option value="01">Enero</option>
+            <option value="02">Febrero</option>
+            <option value="03">Marzo</option>
+            <option value="04">Abril</option>
+            <option value="05">Mayo</option>
+            <option value="06">Junio</option>
+            <option value="07">Julio</option>
+            <option value="08">Agosto</option>
+            <option value="09">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function () {
+        var ctx = document.getElementById('vehiclesChart').getContext('2d');
+
+        var colorPalette = {
+            'Vehiculo en liquidación': '#ff6384',
+            'Orden Aprobada': '#36a2eb',
+            'Recepción de Repuestos': '#ffce56',
+            'Desarme': '#4bc0c0',
+            'Desabolladura': '#9966ff',
+            'Levantamiento': '#ff9f40',
+            'Preparación': '#f7a35c',
+            'Pintura': '#50b432',
+            'Ensamble': '#058dc7',
+            'Brillado': '#6af9c4',
+            'Lavado': '#ff6f61',
+            'Terminación': '#c43a31',
+            'Entrega': '#0091ea'
+        };
+
+        var vehiclesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: []
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+
+        function updateChart(data) {
+            var workshops = Object.keys(data);
+            var statuses = [...new Set(workshops.flatMap(workshop => Object.keys(data[workshop])))];
+
+            var datasets = statuses.map(status => ({
+                label: status,
+                data: workshops.map(workshop => data[workshop][status] || 0),
+                backgroundColor: colorPalette[status] || '#c9cbcf',
+                borderColor: colorPalette[status] || '#c9cbcf',
+                borderWidth: 1
+            }));
+
+            vehiclesChart.data.labels = workshops;
+            vehiclesChart.data.datasets = datasets;
+            vehiclesChart.update();
+        }
+
+        $('#filtersForm').on('submit', function (event) {
+            event.preventDefault();
+            var state_filter = $('#state_filter').val();
+            var workshop_filter = $('#workshop_filter').val();
+            var month_filter = $('#month_filter').val();
+
+            $.ajax({
+                url: "{{ url_for('main.get_report_data') }}",
+                method: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    state_filter: state_filter,
+                    workshop_filter: workshop_filter,
+                    month_filter: month_filter
+                }),
+                success: function (response) {
+                    updateChart(response);
+                }
+            });
+        });
+
+        // Inicialmente cargar todos los datos
+        $.ajax({
+            url: "{{ url_for('main.get_report_data') }}",
+            method: "POST",
+            contentType: 'application/json',
+            success: function (response) {
+                updateChart(response);
+            }
+        });
+    });
+</script>
+{% endblock %}

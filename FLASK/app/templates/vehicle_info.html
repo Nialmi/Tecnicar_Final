@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Vehicle Info{% endblock %}
+
+{% block content %}
+<div class="content vehicle-info">
+    <h1>Información del Vehículo</h1>
+    <div class="container">
+        {% if qr_image_base64 %}
+        <div class="qr-container" id="qr-container">
+            <strong>QR Información:</strong>
+            <img src="data:image/png;base64,{{ qr_image_base64 }}" alt="QR Code" id="qr-code">
+            <button onclick="printQRCode()">Imprimir QR</button>
+        </div>
+        {% endif %}
+
+        <div class="form-container">
+            <p><strong>Propietario:</strong> {{ customer.name }} {{ customer.last_name }}</p>
+            <p><strong>Matrícula:</strong> {{ vehicle.license_plate }}</p>
+            <p><strong>Modelo:</strong> {{ vehicle.model }}</p>
+            <p><strong>Color:</strong> {{ vehicle.vehicle_color }}</p>
+            <p><strong>Tipo:</strong> {{ vehicle.vehicle_type }}</p>
+            <p><strong>Estado:</strong> {{ vehicle.status }}</p>
+            <p><strong>Comentarios:</strong> {{ vehicle.comentario }}</p>
+            <br>
+            <hr>
+            <h2>Actualizar Estado del Vehículo</h2>
+            <form id="update-status-form" method="POST">
+                {{ form.hidden_tag() }}
+                <div>
+                    {{ form.status.label }} {{ form.status() }}
+                </div>
+                <div>
+                    {{ form.comentario.label }} {{ form.comentario() }}
+                </div>
+                <div>
+                    {{ form.submit() }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function printQRCode() {
+        var qrContent = document.getElementById('qr-container').innerHTML;
+        var printWindow = window.open('', '_blank', 'width=600,height=600');
+        printWindow.document.write('<html><head><title>Imprimir QR</title></head><body>');
+        printWindow.document.write(qrContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.onload = function () {
+            printWindow.print();
+            printWindow.close();
+        };
+    }
+
+    $(document).ready(function () {
+        $('#update-status-form').on('submit', function (event) {
+            event.preventDefault(); // Evita el envío normal del formulario
+            var formData = $(this).serialize(); // Obtiene los datos del formulario
+
+            $.ajax({
+                type: 'POST',
+                url: '', // La URL actual para manejar el envío del formulario
+                data: formData,
+                success: function (response) {
+                    // Si el servidor responde con éxito, recarga la página
+                    location.reload();
+                },
+                error: function (response) {
+                    // Maneja el error si ocurre
+                    alert('Error al actualizar el estado del vehículo.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

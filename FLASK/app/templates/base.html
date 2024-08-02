@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <nav>
+        {% if current_user.is_authenticated %}
+        {% if current_user.role == 'operator' %}
+        <a href="{{ url_for('main.register_customer') }}">Registrar Vehículo</a>
+        <a href="{{ url_for('main.admin_view_records') }}">Buscar Vehículo</a>
+        {% elif current_user.role == 'admin' %}
+        <a href="{{ url_for('main.admin_dashboard') }}">Inicio</a>
+        <a href="{{ url_for('main.admin_reports') }}">Reportes</a>
+        <a href="{{ url_for('main.admin_create_user') }}">Crear Usuarios</a>
+        <a href="{{ url_for('main.admin_view_records') }}">Buscar Vehículo</a>
+        <a href="{{ url_for('main.register_customer') }}">Registrar Vehículo</a>
+        <a href="{{ url_for('main.manage_user') }}">Eliminar Usuario</a>
+        {% endif %}
+        <a href="{{ url_for('main.logout') }}">Cerrar Sesión</a>
+        {% else %}
+        <a href="{{ url_for('main.login') }}">Login</a>
+        {% endif %}
+    </nav>
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <span class="text-muted">&copy; {{ current_year }} App_Tecnicar. Powered by Dathink SAS, Bogotá
+                Colombia</span>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

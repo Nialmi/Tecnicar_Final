@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}View Records{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Buscar Vehículo</h1>
+    <form method="POST" class="form-inline mb-4 mx-auto" style="max-width: 600px;">
+        <div class="form-group mb-2">
+            <label for="document" class="sr-only">Placa Vehículo:</label>
+            <input type="text" class="form-control" id="document" name="document" placeholder="Ingrese Placa">
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Buscar</button>
+    </form>
+
+    {% if vehicle %}
+    <h2 class="text-center">Datos del Vehículo</h2>
+    <div class="table-responsive mx-auto" style="max-width: 1200px;">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Modelo Vehículo</th>
+                    <th scope="col">Color</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Taller</th>
+                    <th scope="col">Aseguradora</th>
+                    <th scope="col">QR</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="p-3">{{ vehicle.license_plate }}</td>
+                    <td class="p-3">{{ vehicle.model }}</td>
+                    <td class="p-3">{{ vehicle.vehicle_color }}</td>
+                    <td class="p-3">{{ vehicle.vehicle_type }}</td>
+                    <td class="p-3">{{ vehicle.workshop }}</td>
+                    <td class="p-3">{{ vehicle.aseguradora }}</td>
+                    <td class="p-3 text-center">
+                        {% if vehicle.qr_image %}
+                        <img src="data:image/png;base64,{{ base64.b64encode(vehicle.qr_image).decode('utf-8') }}"
+                            alt="QR Code" class="img-fluid mb-2" style="max-width: 100px;">
+                        <br>
+                        <button class="btn btn-primary mt-2"
+                            onclick="printQRCode('data:image/png;base64,{{ base64.b64encode(vehicle.qr_image).decode('utf-8') }}')">Imprimir
+                            QR</button>
+                        {% else %}
+                        No QR
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <form method="POST" action="{{ url_for('main.update_vehicle') }}">
+        <h2 class="text-center mt-5">Editar Información del Vehículo</h2>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.license_plate.label }} {{ form.license_plate(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.model.label }} {{ form.model(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.vehicle_color.label }} {{ form.vehicle_color(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.vehicle_type.label }} {{ form.vehicle_type(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.workshop.label }} {{ form.workshop(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.aseguradora.label }} {{ form.aseguradora(class="form-control") }}
+        </div>
+        <h2 class="text-center mt-5">Editar Información del Cliente</h2>
+        <div class="form-group">
+            {{ form.customer_document.label }} {{ form.customer_document(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.customer_name.label }} {{ form.customer_name(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.customer_last_name.label }} {{ form.customer_last_name(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.customer_phone.label }} {{ form.customer_phone(class="form-control") }}
+        </div>
+        <div class="form-group d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">Actualizar Información</button>
+            <form method="POST" action="{{ url_for('main.delete_vehicle') }}">
+                <input type="hidden" name="license_plate" value="{{ vehicle.license_plate }}">
+                <button type="submit" class="btn btn-danger">Eliminar Vehículo</button>
+            </form>
+        </div>
+    </form>
+    {% endif %}
+</div>
+
+<script>
+    function printQRCode(dataUrl) {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write('<html><head><title>Imprimir QR</title></head><body>');
+        printWindow.document.write('<img src="' + dataUrl + '" style="max-width:100%;"/>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+</script>
+{% endblock %}

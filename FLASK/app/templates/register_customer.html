@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Registrar Cliente</h1>
+
+<form method="POST" action="{{ url_for('main.register_customer') }}" id="clienteForm">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.customer_document.label }} {{ form.customer_document }}
+    </div>
+    <div>
+        {{ form.customer_name.label }} {{ form.customer_name }}
+    </div>
+    <div>
+        {{ form.customer_last_name.label }} {{ form.customer_last_name }}
+    </div>
+    <div>
+        {{ form.customer_phone.label }} {{ form.customer_phone }}
+    </div>
+    <div>
+        {{ form.vehicle_model.label }} {{ form.vehicle_model }}
+    </div>
+    <div>
+        {{ form.vehicle_license_plate.label }} {{ form.vehicle_license_plate }}
+    </div>
+    <div>
+        {{ form.vehicle_color.label }} {{ form.vehicle_color }}
+    </div>
+    <div>
+        {{ form.vehicle_type.label }} {{ form.vehicle_type }}
+    </div>
+    <div>
+        {{ form.aseguradora.label }} {{ form.aseguradora }}
+    </div>
+    <div>
+        {{ form.workshop.label }} {{ form.workshop }}
+    </div>
+    <input type="submit" name="submit" value="Registrar" class="btn btn-primary">
+</form>
+
+{% if customer %}
+<p><strong>Propietario:</strong> {{ customer.name }} {{ customer.last_name }}</p>
+{% endif %}
+
+{% if qr_img %}
+<div id="qr_container" class="qr-container">
+    <img src="data:image/png;base64,{{ qr_img }}" alt="QR Code">
+</div>
+<button id="print_qr" class="btn btn-primary">Imprimir QR</button>
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#customer_document').on('blur', function () {
+            const documento = $(this).val();
+            if (documento) {
+                $.ajax({
+                    url: '{{ url_for("main.verificar_cliente") }}',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ documento: documento }),
+                    success: function (response) {
+                        if (response.existe) {
+                            $('#customer_name').val(response.cliente.nombre);
+                            $('#customer_last_name').val(response.cliente.last_name);
+                            $('#customer_phone').val(response.cliente.phone);
+                            // Completar otros campos del vehículo si están presentes en la respuesta
+                        } else {
+                            $('#customer_name').val('');
+                            $('#customer_last_name').val('');
+                            $('#customer_phone').val('');
+                            // Limpiar otros campos del vehículo si fuera necesario
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error al verificar el cliente:', error);
+                    }
+                });
+            }
+        });
+
+        $('#print_qr').on('click', function () {
+            const printContents = document.getElementById('qr_container').innerHTML;
+            const originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload();  // Recargar la página para volver al estado original
+        });
+    });
+</script>
+
+{% endblock %}
